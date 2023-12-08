@@ -78,24 +78,15 @@ fn main() {
 		let bid = temp[1].parse::<i32>().unwrap();
 		pairs.insert(hand.clone(), bid);
 
-		match detect_hand_type(&hand) as usize {
-			x =>  {
-				vectors[x-1].push(hand);
-			}
+		vectors[detect_hand_type(&hand) as usize -1].push(hand);
 		}
-	}
 
 	let mut final_order = Vec::new();
 
 	for j in 0..7 {
 		vectors[j].sort();
 		vectors[j].reverse();
-	}
-
-	for j in 0..7 {
-		for i in &vectors[j] {
-			final_order.push(i);
-		}
+		final_order.append(&mut vectors[j]);
 	}
 
 	final_order.reverse();
@@ -104,7 +95,7 @@ fn main() {
 	let mut total: i32 = 0;
 	for i in 0..len {
 		println!("{:?}", final_order[i]);
-		let bid = pairs.get(final_order[i]).unwrap();
+		let bid = pairs.get(&final_order[i]).unwrap();
 		println!("{:?} {}", bid, i as i32 +1);
 		total += bid * (i as i32 +1);
 	}
