@@ -49,7 +49,7 @@ fn get_nbrs(map: Vec<Vec<char>>, i: i32, j: i32, rows: i32, columns: i32) -> Vec
 }
 
 fn main() {
-	let file_path: String = "sample2.txt".to_string();
+	let file_path: String = "sample5.txt".to_string();
 	let binding = fs::read_to_string(&file_path).unwrap();
 	let lines = binding.lines();
 
@@ -72,7 +72,7 @@ fn main() {
 
 	let rows = map.len() as i32;
 	let columns = map[0].len() as i32;
-
+	let mut new_map = map.clone();
 	let mut nodes_searched: Vec<(i32, i32)> = Vec::new();
 	let mut nodes_queue: Vec<((i32, i32), i32)> = Vec::new();
 	nodes_queue.push((start, 0));
@@ -84,8 +84,7 @@ fn main() {
 
 		dists.insert(current, dist);
 		nodes_searched.push(current);
-
-		nodes_searched.push(current);
+		new_map[current.0 as usize][current.1 as usize] = '0';
 
 		let nbrs = get_nbrs(map.clone(), current.0, current.1, rows, columns);
 
@@ -100,12 +99,43 @@ fn main() {
 		}
 	}
 
-	let mut max = 0;
-	for (i, dist) in dists {
-		if dist > max {
-			max = dist;
-		}
+
+	let mut inside = 0;
+	let mut crossed;
+	for i in 0..rows {
+		'inner: for j in 0..columns{
+			let current = (i, j);
+
+			for nd in &nodes_searched {
+				if current == *nd {
+					continue 'inner;
+				}
+			}
+
+				crossed = 0;
+
+				for m in 0..columns-j {
+					if !nodes_searched.contains(&(current.0, current.1+m)) {
+						continue;
+					}
+
+
+					for l in vec!['|', 'J', 'L'] {
+						if map[current.0 as usize][(current.1+m) as usize] == l {
+							crossed += 1;
+							break;
+						}
+					}
+				}
+
+				if (crossed % 2) != 0 {
+						new_map[current.0 as usize][current.1 as usize] = '1';
+						inside += 1;
+				}
+
+			}
 	}
 
-	println!("{:?}", max);
+
+	println!("{:?}", inside);
 }
